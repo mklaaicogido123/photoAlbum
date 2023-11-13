@@ -11,11 +11,24 @@ const GalleryAlbum = () => {
   const [viewerIsOpen, setViewerIsOpen] = useState(false);
 
   useEffect(() => {
+    const getImageSize = (url, cb) => {
+      const img = new Image();
+      img.onload = () => cb(null, img);
+      img.onerror = (err) => cb(err);
+      img.src = url;
+    };
     listAll(ref(imageDb, "files")).then((imgs) => {
       imgs.items.forEach((val) => {
         getDownloadURL(val).then((url) => {
-          const newPhoto = { src: url, width: 4, height: 4 };
-          setImgUrl((data) => [...data, newPhoto]);
+          // Use like:
+          getImageSize(url, (err, img) => {
+            const newPhoto = {
+              src: url,
+              width: Math.round(img.naturalWidth / 1000),
+              height: Math.round(img.naturalHeight / 1000),
+            };
+            setImgUrl((data) => [...data, newPhoto]);
+          });
         });
       });
     });
